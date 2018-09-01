@@ -1,0 +1,32 @@
+\documentclass[10pt,preview]{standalone}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\begin{document}%
+\begin{equation*}%
+  \begin{bmatrix}%
+    y_{11} & y_{21} & y_{31} & y_{41} & \cdots \\
+    y_{12} & y_{22} & y_{32} & y_{42} & \cdots \\
+    y_{13} & y_{23} & y_{33} & y_{43} & \cdots \\
+    y_{14} & y_{24} & y_{34} & y_{44} & \cdots \\
+    \vdots & \vdots & \vdots & \vdots & \ddots
+  \end{bmatrix}
+  \qquad\mapsto\qquad
+  \begin{bmatrix}
+    y'_{11} = \frac{y_{11} + y_{21} + y_{12} + y_{22}}{4}
+    & y'_{21} = \frac{y_{31} + y_{41} + y_{32} + y_{42}}{4}
+    & \cdots \\
+    y'_{12} = \frac{y_{13} + y_{23} + y_{14} + y_{24}}{4}
+    & y'_{22} = \frac{y_{33} + y_{43} + y_{34} + y_{44}}{4}
+    & \cdots \\
+    \vdots  & \vdots  & \ddots
+  \end{bmatrix}
+\end{equation*}
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

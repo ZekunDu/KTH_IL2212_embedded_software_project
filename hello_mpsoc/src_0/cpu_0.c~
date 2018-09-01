@@ -1,0 +1,162 @@
+#include <stdio.h>
+#include "system.h"
+#include "altera_avalon_pio_regs.h"
+#include "altera_avalon_performance_counter.h"
+#include "io.h"
+#include "images.h"
+
+/* address offsets of flags in shared memory */
+#define GRAYSCALE_RESIZE_FLAG_ADDR 0
+#define RESIZE_CORRECT_FLAG_ADDR   1
+#define CORRECT_SOBEL_FLAG_ADDR    2
+#define SOBEL_ASCII_FLAG_ADDR      3
+#define INITIAL_FLAG_ADDR          4
+
+/* address offsets of images in shared memory */
+#define GRAYSCALE_MAT_ADDR    8
+#define RESIZE_MAT_ADDR    1032 // 8 + 1024
+#define CORRECT_MAT_ADDR   1288 // 1032 + 256
+#define SOBEL_MAT_ADDR     1544 // 1288 + 256
+
+/* width and height of images */
+#define WIDTH  32
+#define HEIGHT 32
+
+/* Definition of performance counter section */
+#define SECTION_1 1
+#define SECTION_2 2
+
+/* Global variables */
+int flag_offset = GRAYSCALE_RESIZE_FLAG_ADDR; //!> offset of flag after processing
+int mem_offset = GRAYSCALE_MAT_ADDR;          //!> offset of grayscale image
+double exe_time = 0;                          //!> execution time 
+char exe_time_size = 20;                      //!> execution time loop size for throughput calculation
+
+extern void delay (int millisec);
+
+//! A function writing image in shared memory.
+/*!
+  \param base pointer of an array containing pixels of image.
+  \param block block index of memory.
+*/
+void mem_write_img(unsigned char *base, int block){
+	unsigned char *shared = (unsigned char *) SHARED_ONCHIP_BASE; // image pointer to shared memory
+	int i;
+
+	shared += mem_offset + (block << 20); // block selection
+
+	for (i = 0; i < WIDTH * HEIGHT; i++){
+		*shared++ = *base++; 	
+	}
+}
+
+//! A function converting an image from RGB to grayscale.
+/*!
+  \param x width of input image.
+  \param y height of input image.
+  \param origin_mat pointer of an array containing pixels of image.
+  \param gray_m pointer of the processed array containing pixels of grayscale image.
+*/
+void grayscale(int x, int y, unsigned char * origin_mat, unsigned char * gray_m){
+	int i;
+	unsigned char r, g, b; // RGB colormap components
+
+	for (i = 0; i < x * y; i++){
+		/* extract RGB components successively */
+		r = *origin_mat++;
+		g = *origin_mat++;
+		b = *origin_mat++;
+		/* convert by given formula gray = r * 0.3125 + g * 0.5625 + b * 0.125 */
+		*gray_m = (r >> 4) + (r >> 2) + (g >> 1) + (g >> 4) + (b >> 3);
+		gray_m++;
+	}
+}
+
+int main(){
+	unsigned char current_image = 0;        // index for processing image
+	unsigned char number_of_images = 4;     // total number of tested images
+	unsigned char ** img_array = sequence1; // array of tested images
+	unsigned char loop_times = 0;           // index for loop
+	alt_u64 total_clock;
+	
+	/* flag pointer to shared memory */
+	unsigned char *flag = (unsigned char *) SHARED_ONCHIP_BASE;
+	unsigned char *flag_initial = flag + INITIAL_FLAG_ADDR;
+	
+	int block = 0; // block index
+	unsigned char processed_mat[WIDTH * HEIGHT]; // static array containing pixels of processed image
+
+	while (1){
+		delay(1);
+		if (*flag_initial == 0x0f) break; // wait until all flags are initialized to 0x0f
+	}
+	
+	while (1){
+		/* Start performance counter */
+		PERF_RESET(PERFORMANCE_COUNTER_0_BASE);
+		PERF_START_MEASURING(PERFORMANCE_COUNTER_0_BASE);
+		PERF_BEGIN(PERFORMANCE_COUNTER_0_BASE, SECTION_1);
+
+		/* image process */
+		grayscale(WIDTH, HEIGHT, img_array[current_image] + 3, processed_mat); // grayscale function
+		
+<<<<<<< HEAD
+    PERF_END(PERFORMANCE_COUNTER_0_BASE, SECTION_1);
+    PERF_BEGIN(PERFORMANCE_COUNTER_0_BASE, SECTION_2);
+
+=======
+		flag = (unsigned char *) SHARED_ONCHIP_BASE + flag_offset + (block << 20); // block selection
+>>>>>>> e48270cac2e852208cd44edc31f1ffc25a8cbff4
+		while (1){
+			delay(1);
+			if (*flag == 0x02){ // 00000010 image is processed and available
+				*flag = 0x03; // 00000011 image is being freshed and not available
+				break;
+			}
+		}
+<<<<<<< HEAD
+
+    PERF_END(PERFORMANCE_COUNTER_0_BASE, SECTION_2);
+
+		mem_write_img(processed_mat); // write processed image in memory
+=======
+		mem_write_img(processed_mat, block); // write processed image in memory
+>>>>>>> e48270cac2e852208cd44edc31f1ffc25a8cbff4
+		*flag = 0x00; // 00000000 image is not processed but available
+
+		/* Increment the image pointer */
+		current_image = (current_image + 1) % number_of_images;
+		
+		block = (block + 1) % 4; // switch to next block
+
+		
+
+		/* Print general report */ 
+
+    perf_print_formatted_report
+    (PERFORMANCE_COUNTER_0_BASE,            
+    ALT_CPU_FREQ,       // defined in "system.h"
+    2,                  // How many sections to print
+    "waiting time", "execution time"
+    );
+
+		exe_time = 0.0;
+		total_clock = perf_get_total_time((void *)PERFORMANCE_COUNTER_0_BASE);
+		exe_time += ((double)total_clock) / ALT_CPU_FREQ;
+		printf("%d\n", PERFORMANCE_COUNTER_0_BASE);
+		printf("%d\n", ALT_CPU_FREQ);
+		printf("%f\n", perf_get_total_time((void *)PERFORMANCE_COUNTER_0_BASE));
+
+		
+		if (++loop_times >= exe_time_size){
+			printf("|**************************************\n");
+			printf("|** %d images done \n", loop_times);
+			printf("|** throughput is %f images/second\n", loop_times / exe_time);
+			printf("|**************************************\n");
+
+			loop_times = 0;
+		}
+	}
+  
+	return 0;
+}

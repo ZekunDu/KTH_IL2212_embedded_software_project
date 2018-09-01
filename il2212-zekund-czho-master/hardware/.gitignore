@@ -1,0 +1,25 @@
+# Ignore everything in this directory
+.qsys_edit
+db
+**/*.rpt
+**/*.done
+**/*.smsg
+**/*.summary
+**/*.pin
+**/*.pof
+**/*.qws
+**/*.bsf
+**/*.cmp
+**/*.html
+**/*~
+**/submodules
+**/*.ppf
+**/greybox_tmp
+**/incremental_db
+**/*.qip
+**/*.bak
+**/*/synthesis/*.vhd
+**/\#*
+# Except this file
+!.gitignore
+de2_nios2_mpsoc/nios2_mpsoc/synthesis/de2_nios2_mpsoc.vhd

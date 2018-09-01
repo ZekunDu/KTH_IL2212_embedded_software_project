@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1517490893 source:e:\kth master\il2212\proj\image_proc_single\src_0\functions.c
+	<stdio.h>
+
+1517668120 source:e:\kth master\il2212\proj\image_proc-single-bare\src_0\function.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	"images.h"
+
+1517229354 e:\kth master\il2212\proj\image_proc-single-bare\src_0\images.h
+

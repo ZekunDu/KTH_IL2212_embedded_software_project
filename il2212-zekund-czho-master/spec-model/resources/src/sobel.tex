@@ -1,0 +1,30 @@
+\documentclass[10pt,preview]{standalone}
+%\usepackage[margin=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\begin{document}%
+\vspace*{-1em}
+\begin{align*}%
+  &K_x=
+  \begin{bmatrix}%
+    -1 & 0 & 1 \\
+    -2 & 0 & 2 \\
+    -1 & 0 & 1
+  \end{bmatrix}
+  \qquad K_y=
+  \begin{bmatrix}
+    -1 & -2 & -1 \\
+    0 & 0 & 0 \\
+    1 & 2 & 1 
+  \end{bmatrix}\\
+  & G_x = \mathit{image} * K_x \qquad G_y = \mathit{image} * K_y \\
+  & G = \sqrt{ G_x^2 + G_y^2 }
+\end{align*}
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
